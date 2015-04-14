@@ -19,7 +19,7 @@ public class Gateway
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(3, 3, 0, TimeUnit.SECONDS, workQueue);
 
 		ServerSocket serverSocket = new ServerSocket(12345);
-		RequestProcessor.MediaParams params = new RequestProcessor.MediaParams("127.0.0.1", 15000);
+		RequestProcessor.MediaParams params = new RequestProcessor.MediaParams("127.0.0.1", 8081);
 		RequestProcessor.DBConGetter connectionGetter = new RequestProcessor.DBConGetter()
 		{
 			@Override

@@ -58,7 +58,7 @@ public final class RequestProcessor implements Runnable
 			
 			String mode = reader.readLine();
 			String token = reader.readLine();
-			String mediaRequest = reader.readLine();
+			String mediaRequestOrOldToken = reader.readLine();
 			
 			String[] tokenPieces = token.split(",");
 
@@ -90,24 +90,28 @@ public final class RequestProcessor implements Runnable
 				System.out.println("Token not already used.");
 			}
 			
-			//TODO: Socket contentProvider = mediaParams.makeNewSocket();
-			
+			Socket contentProvider = mediaParams.makeNewSocket();
+
 			if (mode.equals(NEW_CONTENT))
 			{
 				
-				//Can't really check if token is valid so...
-				//TODO:contentProvider.getOutputStream().write(mediaRequest.getBytes());
+				contentProvider.getOutputStream().write((mediaRequestOrOldToken+"\n").getBytes());
 				
-				//TODO:copyStream(contentProvider.getInputStream(), customer.getOutputStream());
-				recordToken(tokenPieces[0],tokenExpires,4,dbCon);
+				copyStream(contentProvider.getInputStream(), customer.getOutputStream());
+				recordToken(tokenPieces[0],tokenExpires,Integer.parseInt(mediaRequestOrOldToken),dbCon);
 			}
 			else if (mode.equals(PREVIOUS_TOKEN))
 			{
 				//get previous token
 				//send request
 				//copy back
-				//int oldMedia = retrieveTokenContent()
-				throw new UnsupportedOperationException("NOT IMPLEMENTED");
+				String oldMedia = retrieveTokenContent(mediaRequestOrOldToken,dbCon);
+				System.out.println(1+"OLD MEDIA: "+oldMedia);
+				contentProvider.getOutputStream().write((oldMedia + "\n").getBytes());
+				System.out.println(2);
+				copyStream(contentProvider.getInputStream(), customer.getOutputStream());
+				System.out.println(3);
+				recordToken(tokenPieces[0],tokenExpires,Integer.parseInt(oldMedia),dbCon);
 			}
 			else
 			{
@@ -202,7 +206,7 @@ public final class RequestProcessor implements Runnable
 		
 	}
 	
-	public static interface DBConGetter 
+	public interface DBConGetter
 	{
 		public Connection getConnection() throws SQLException;
 	}
