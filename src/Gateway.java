@@ -17,6 +17,7 @@ public class Gateway
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
 		BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(3, 3, 0, TimeUnit.SECONDS, workQueue);
+
 		ServerSocket serverSocket = new ServerSocket(12345);
 		RequestProcessor.MediaParams params = new RequestProcessor.MediaParams("127.0.0.1", 15000);
 		RequestProcessor.DBConGetter connectionGetter = new RequestProcessor.DBConGetter()
@@ -31,7 +32,8 @@ public class Gateway
 		while(true)
 		{
 			Socket soc = serverSocket.accept();
-			workQueue.add(new RequestProcessor(soc,params,connectionGetter));
+			System.out.println("Connection received");
+			executor.execute(new RequestProcessor(soc,params,connectionGetter));
 		}
 	}
 }

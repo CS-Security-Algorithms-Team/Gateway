@@ -5,6 +5,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -14,6 +16,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Date;
+import java.util.TimeZone;
 
 
 public final class RequestProcessor implements Runnable 
@@ -28,7 +32,10 @@ public final class RequestProcessor implements Runnable
 	public static final String INSERT_TOKEN = "INSERT INTO usedTokens (token,expiration,lastArticleId) VALUES (?,?,?)";
 	public static final String CHECK_IF_USED = "SELECT token FROM usedTokens WHERE token = ?";
 	public static final String MEDIA_FROM_OLD = "SELECT lastArticleId FROM usedTokens WHERE token = ?";
-		
+
+	public static final String OUR_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+
+
 	private Socket customer;
 	//private Socket contentProvider;
 	private MediaParams mediaParams;
@@ -46,6 +53,7 @@ public final class RequestProcessor implements Runnable
 	{
 		try
 		{
+			System.out.println("Run started");
 			BufferedReader reader = new BufferedReader(new InputStreamReader(customer.getInputStream()));
 			
 			String mode = reader.readLine();
@@ -53,10 +61,18 @@ public final class RequestProcessor implements Runnable
 			String mediaRequest = reader.readLine();
 			
 			String[] tokenPieces = token.split(",");
-			
-			LocalDateTime tokenExpires = LocalDateTime.parse(tokenPieces[1],DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-				
-			if (tokenExpires.isAfter(LocalDateTime.now()))
+
+
+			SimpleDateFormat sdf = new SimpleDateFormat(OUR_DATE_FORMAT);
+			Date tokenExpires = null;
+			try {
+				tokenExpires = sdf.parse(tokenPieces[1]);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+
+			System.out.println("GOT HERE!!");
+			if (tokenExpires.before(new Date()))
 			{
 				customer.getOutputStream().write((EXPIRED+"\n").getBytes());
 				return;
@@ -64,26 +80,33 @@ public final class RequestProcessor implements Runnable
 			
 			Connection dbCon = connectionGetter.getConnection();
 			
-			if (tokenAlreadyUsed(tokenPieces[1], dbCon))
+			if (tokenAlreadyUsed(tokenPieces[0], dbCon))
 			{
 				customer.getOutputStream().write((INVALID+"\n").getBytes());
+				return;
+			}
+			else
+			{
+				System.out.println("Token not already used.");
 			}
 			
-			Socket contentProvider = mediaParams.makeNewSocket();
+			//TODO: Socket contentProvider = mediaParams.makeNewSocket();
 			
 			if (mode.equals(NEW_CONTENT))
 			{
 				
 				//Can't really check if token is valid so...
-				contentProvider.getOutputStream().write(mediaRequest.getBytes());
+				//TODO:contentProvider.getOutputStream().write(mediaRequest.getBytes());
 				
-				copyStream(contentProvider.getInputStream(), customer.getOutputStream());
+				//TODO:copyStream(contentProvider.getInputStream(), customer.getOutputStream());
+				recordToken(tokenPieces[0],tokenExpires,4,dbCon);
 			}
 			else if (mode.equals(PREVIOUS_TOKEN))
 			{
 				//get previous token
 				//send request
 				//copy back
+				//int oldMedia = retrieveTokenContent()
 				throw new UnsupportedOperationException("NOT IMPLEMENTED");
 			}
 			else
@@ -91,7 +114,7 @@ public final class RequestProcessor implements Runnable
 				throw new IllegalArgumentException("Unsupported mode: "+mode);
 			}
 		}
-		catch (IOException |SQLException e)
+		catch (IOException | SQLException e)
 		{
 			e.printStackTrace();
 			exception= e;
@@ -103,11 +126,11 @@ public final class RequestProcessor implements Runnable
 		return exception;
 	}
 	
-	public static void recordToken(String tokenId, LocalDateTime expires, int mediaRequest, Connection con) throws SQLException
+	public static void recordToken(String tokenId, Date expires, int mediaRequest, Connection con) throws SQLException
 	{
 		PreparedStatement ps = con.prepareStatement(INSERT_TOKEN);
 		ps.setString(1, tokenId);
-		ps.setTimestamp(2, Timestamp.valueOf(expires));
+		ps.setTimestamp(2, new Timestamp(expires.getTime()));
 		ps.setInt(3, mediaRequest);
 		ps.execute();
 	}
@@ -120,7 +143,7 @@ public final class RequestProcessor implements Runnable
 			ps.setString(1, tokenId);
 			try (ResultSet rs = ps.executeQuery();)
 			{
-				return rs.isBeforeFirst(); //will return false if already in use
+				return rs.next();
 			}
 		}
 	}
