@@ -28,6 +28,7 @@ public final class RequestProcessor implements Runnable
 	
 	public static final String NEW_CONTENT = "NEW_CONTENT";
 	public static final String PREVIOUS_TOKEN = "PREVIOUS_TOKEN";
+	public static final String CONTENT_LIST = "CONTENT_LIST";
 	
 	public static final String INSERT_TOKEN = "INSERT INTO usedTokens (token,expiration,lastArticleId) VALUES (?,?,?)";
 	public static final String CHECK_IF_USED = "SELECT token FROM usedTokens WHERE token = ?";
@@ -51,77 +52,90 @@ public final class RequestProcessor implements Runnable
 	
 	public void run()
 	{
-		try
-		{
+
+		Socket contentProvider = null;
+		try {
+			contentProvider = mediaParams.makeNewSocket();
 			System.out.println("Run started");
 			BufferedReader reader = new BufferedReader(new InputStreamReader(customer.getInputStream()));
-			
+
 			String mode = reader.readLine();
-			String token = reader.readLine();
-			String mediaRequestOrOldToken = reader.readLine();
-			
-			String[] tokenPieces = token.split(",");
+			if (!mode.equals("CONTENT_LIST"))
+			{
+				String token = reader.readLine();
+				String mediaRequestOrOldToken = reader.readLine();
+
+				token = token.replace("TOKEN", "");
+
+				String[] tokenPieces = token.split("|");
 
 
-			SimpleDateFormat sdf = new SimpleDateFormat(OUR_DATE_FORMAT);
-			Date tokenExpires = null;
+				SimpleDateFormat sdf = new SimpleDateFormat(OUR_DATE_FORMAT);
+				Date tokenExpires = null;
+				try {
+					tokenExpires = sdf.parse(tokenPieces[1]);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+
+				System.out.println("GOT HERE!!");
+				if (tokenExpires.before(new Date())) {
+					customer.getOutputStream().write((EXPIRED + "\n").getBytes());
+					return;
+				}
+
+				Connection dbCon = connectionGetter.getConnection();
+
+				if (tokenAlreadyUsed(tokenPieces[0], dbCon)) {
+					customer.getOutputStream().write((INVALID + "\n").getBytes());
+					return;
+				} else {
+					System.out.println("Token not already used.");
+				}
+
+
+
+				if (mode.equals(NEW_CONTENT)) {
+
+					contentProvider.getOutputStream().write((mediaRequestOrOldToken + "\n").getBytes());
+
+					copyStream(contentProvider.getInputStream(), customer.getOutputStream());
+					recordToken(tokenPieces[0], tokenExpires, Integer.parseInt(mediaRequestOrOldToken), dbCon);
+				} else if (mode.equals(PREVIOUS_TOKEN)) {
+					//get previous token
+					//send request
+					//copy back
+					String oldMedia = retrieveTokenContent(mediaRequestOrOldToken, dbCon);
+					contentProvider.getOutputStream().write((oldMedia + "\n").getBytes());
+					copyStream(contentProvider.getInputStream(), customer.getOutputStream());
+					recordToken(tokenPieces[0], tokenExpires, Integer.parseInt(oldMedia), dbCon);
+				}
+			}
+			else if (mode.equals(CONTENT_LIST)) {
+				//send an array of = sign contents
+				System.out.println("GOT HERE");
+				contentProvider.getOutputStream().write(new String("*" + "\n").getBytes());
+				copyStream(contentProvider.getInputStream(), customer.getOutputStream());
+			} else {
+				throw new IllegalArgumentException("Unsupported mode: " + mode);
+			}
+		} catch (IOException | SQLException e) {
+			e.printStackTrace();
+			exception = e;
+		}
+		finally
+		{
 			try {
-				tokenExpires = sdf.parse(tokenPieces[1]);
-			} catch (ParseException e) {
+				customer.close();
+				if (contentProvider != null)
+				{
+					contentProvider.close();
+				}
+			} catch (IOException e) {
+				exception = e;
 				e.printStackTrace();
 			}
 
-			System.out.println("GOT HERE!!");
-			if (tokenExpires.before(new Date()))
-			{
-				customer.getOutputStream().write((EXPIRED+"\n").getBytes());
-				return;
-			}
-			
-			Connection dbCon = connectionGetter.getConnection();
-			
-			if (tokenAlreadyUsed(tokenPieces[0], dbCon))
-			{
-				customer.getOutputStream().write((INVALID+"\n").getBytes());
-				return;
-			}
-			else
-			{
-				System.out.println("Token not already used.");
-			}
-			
-			Socket contentProvider = mediaParams.makeNewSocket();
-
-			if (mode.equals(NEW_CONTENT))
-			{
-				
-				contentProvider.getOutputStream().write((mediaRequestOrOldToken+"\n").getBytes());
-				
-				copyStream(contentProvider.getInputStream(), customer.getOutputStream());
-				recordToken(tokenPieces[0],tokenExpires,Integer.parseInt(mediaRequestOrOldToken),dbCon);
-			}
-			else if (mode.equals(PREVIOUS_TOKEN))
-			{
-				//get previous token
-				//send request
-				//copy back
-				String oldMedia = retrieveTokenContent(mediaRequestOrOldToken,dbCon);
-				System.out.println(1+"OLD MEDIA: "+oldMedia);
-				contentProvider.getOutputStream().write((oldMedia + "\n").getBytes());
-				System.out.println(2);
-				copyStream(contentProvider.getInputStream(), customer.getOutputStream());
-				System.out.println(3);
-				recordToken(tokenPieces[0],tokenExpires,Integer.parseInt(oldMedia),dbCon);
-			}
-			else
-			{
-				throw new IllegalArgumentException("Unsupported mode: "+mode);
-			}
-		}
-		catch (IOException | SQLException e)
-		{
-			e.printStackTrace();
-			exception= e;
 		}
 	}
 	
