@@ -23,10 +23,10 @@ public class Gateway
 		RequestProcessor.DBConGetter connectionGetter = new RequestProcessor.DBConGetter()
 		{
 			@Override
-			public Connection getConnection() throws SQLException {
+			public Connection getConnection() throws SQLException
+			{
 				return DriverManager.getConnection("jdbc:mysql://localhost:3306/test","root","root");
 			}
-			
 		};
 		
 		while(true)

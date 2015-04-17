@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -65,10 +66,13 @@ public final class RequestProcessor implements Runnable
 				String token = reader.readLine();
 				String mediaRequestOrOldToken = reader.readLine();
 
-				token = token.replace("TOKEN", "");
+				token = token.replace("TOKEN|", "");
 
-				String[] tokenPieces = token.split("|");
+				System.out.println("TOKEN NOW HERE: "+ token);
 
+				String[] tokenPieces = token.split("\\|");
+
+				System.out.println("TOKEN PIECes: "+ Arrays.asList(tokenPieces));
 
 				SimpleDateFormat sdf = new SimpleDateFormat(OUR_DATE_FORMAT);
 				Date tokenExpires = null;

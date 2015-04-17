@@ -8,9 +8,9 @@ import java.util.Date;
 public class ClientTest {
 	public static void main(String[] args) throws UnknownHostException, IOException
 	{
-		//newToken();
+		newToken();
 		//oldToken();
-		listOfArticles();
+		//listOfArticles();
 	}
 
 	public static void newToken() throws IOException {
@@ -20,7 +20,7 @@ public class ClientTest {
 		Date aLittleAfterNow = new Date(new Date().getTime()+3000); //THIS IS OBVIOUSLY INCORRECT
 		SimpleDateFormat sdf = new SimpleDateFormat(RequestProcessor.OUR_DATE_FORMAT);
 
-		write.write("TOKENalaska,"+sdf.format(aLittleAfterNow)+"\n");
+		write.write("TOKEN|6psr5lg3ujnh2ncct34camuiub|"+sdf.format(aLittleAfterNow)+"\n");
 		write.write("1\n");
 		write.flush();
 
@@ -39,7 +39,7 @@ public class ClientTest {
 		Date aLittleAfterNow = new Date(new Date().getTime()+3000); //THIS IS OBVIOUSLY INCORRECT
 		SimpleDateFormat sdf = new SimpleDateFormat(RequestProcessor.OUR_DATE_FORMAT);
 
-		write.write("alaska,"+sdf.format(aLittleAfterNow)+"\n");
+		write.write("TOEKN|alaska|"+sdf.format(aLittleAfterNow)+"\n");
 		write.write("alabama\n");
 		write.flush();
 
