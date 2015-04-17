@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c07c2fad-3a8a-48b6-9a18-aaee6d1b51ee" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ClientTest.java" afterPath="$PROJECT_DIR$/src/ClientTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/RequestProcessor.java" afterPath="$PROJECT_DIR$/src/RequestProcessor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/RequestProcessor$MediaParams.class" afterPath="$PROJECT_DIR$/bin/RequestProcessor$MediaParams.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/RequestProcessor.class" afterPath="$PROJECT_DIR$/bin/RequestProcessor.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Gateway.iws" />
@@ -36,21 +36,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Gateway.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Gateway.java">
+      <file leaf-file-name="RequestProcessor.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/RequestProcessor.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="21" column="96" selection-start-line="21" selection-start-column="96" selection-end-line="21" selection-end-column="96" />
+              <caret line="132" column="17" selection-start-line="132" selection-start-column="17" selection-end-line="132" selection-end-column="17" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RequestProcessor.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/RequestProcessor.java">
+      <file leaf-file-name="Gateway.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Gateway.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4874372">
-              <caret line="52" column="21" selection-start-line="52" selection-start-column="21" selection-end-line="52" selection-end-column="21" />
+            <state vertical-scroll-proportion="0.17085427">
+              <caret line="21" column="96" selection-start-line="21" selection-start-column="96" selection-end-line="21" selection-end-column="96" />
               <folding />
             </state>
           </provider>
@@ -382,7 +382,13 @@
       <option name="project" value="LOCAL" />
       <updated>1429018489401</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Now get article list">
+      <created>1429305702142</created>
+      <option name="number" value="00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1429305702142</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -428,7 +434,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="New token goes into db, denies if already present.&#10;" />
     <MESSAGE value="Both previous token content and new content appear to be working" />
-    <option name="LAST_COMMIT_MESSAGE" value="Both previous token content and new content appear to be working" />
+    <MESSAGE value="Now get article list" />
+    <option name="LAST_COMMIT_MESSAGE" value="Now get article list" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -511,18 +518,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Gateway.java">
+    <entry file="file://$PROJECT_DIR$/src/RequestProcessor.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="21" column="96" selection-start-line="21" selection-start-column="96" selection-end-line="21" selection-end-column="96" />
+          <caret line="132" column="17" selection-start-line="132" selection-start-column="17" selection-end-line="132" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/RequestProcessor.java">
+    <entry file="file://$PROJECT_DIR$/src/Gateway.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4874372">
-          <caret line="52" column="21" selection-start-line="52" selection-start-column="21" selection-end-line="52" selection-end-column="21" />
+        <state vertical-scroll-proportion="0.17085427">
+          <caret line="21" column="96" selection-start-line="21" selection-start-column="96" selection-end-line="21" selection-end-column="96" />
           <folding />
         </state>
       </provider>
